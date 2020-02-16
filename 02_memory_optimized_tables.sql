@@ -1,0 +1,16 @@
+ALTER DATABASE DEMO
+ADD FILEGROUP DemoInMemory
+CONTAINS MEMORY_OPTIMIZED_DATA;
+
+ALTER DATABASE DEMO
+ADD FILE (Name = N'DemoInMemory00', FileName='/var/opt/mssql/data/DemoInMemory00')
+TO FILEGROUP DemoInMemory;
+
+USE DEMO
+SELECT * FROM sys.filegroups
+
+
+CREATE TABLE dbo.Test (
+    Id INT IDENTITY(1,1) PRIMARY KEY NONCLUSTERED, -- In memory tables should have NONCLUSTERED PK
+    [Name] VARCHAR(50) NOT NULL
+) WITH (MEMORY_OPTIMIZED=ON)

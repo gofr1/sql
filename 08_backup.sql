@@ -1,6 +1,0 @@
-USE master;
-
-BACKUP DATABASE [DEMO]
-TO DISK = '/var/sqlbackup/DEMO_backup_20191116_01.bak';
-
-RESTORE FILELISTONLY FROM DISK = N'DEMO_backup_20191116_01.bak';

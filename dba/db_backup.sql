@@ -16,7 +16,12 @@ SELECT @sql =  CONCAT(@sql,
                       @backup_path,
                       d.name,
                       '_backup_',
-                      CONVERT(varchar(50),@backup_date,120),
+                      REPLACE(
+                          REPLACE(
+                              CONVERT(varchar(50),@backup_date,126),
+                              ':',''),
+                        '-',''
+                      ),
                       '.bak'';',
                       CHAR(10)
 )

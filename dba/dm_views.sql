@@ -1,3 +1,4 @@
+-- Dynamic Management Views
 USE DEMO;
 
 SELECT *

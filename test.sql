@@ -17,5 +17,6 @@ WHERE c.[name] = 'max server memory (MB)';
 SELECT database_id as Id,
        name as DBName,
        state_desc as CurrentState,
-       page_verify_option_desc as PageOption
+       page_verify_option_desc as PageOption,
+       recovery_model_desc as RecoveryModel
 FROM sys.databases;

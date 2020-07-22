@@ -20,3 +20,6 @@ SELECT database_id as Id,
        page_verify_option_desc as PageOption,
        recovery_model_desc as RecoveryModel
 FROM sys.databases;
+
+-- Check if Full-Text Search is installed
+SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')

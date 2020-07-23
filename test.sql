@@ -23,3 +23,7 @@ FROM sys.databases;
 
 -- Check if Full-Text Search is installed
 SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled')
+
+
+SELECT *
+FROM sys.dm_os_host_info

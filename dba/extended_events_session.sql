@@ -11,13 +11,14 @@ WHERE o.object_type = 'action'
 ORDER BY o.name
 GO
 
+
 --Check if the event session is already exisiting, if yes then drop it first
-IF EXISTS(SELECT * FROM sys.server_event_sessions WHERE name='MonitorUserDefinedException')
-DROP EVENT SESSION MonitorUserDefinedException ON SERVER
+IF EXISTS(SELECT * FROM sys.server_event_sessions WHERE name='UserDefindException')
+DROP EVENT SESSION UserDefindException ON SERVER
 GO
 
 --Creating a Extended Event session with CREATE EVENT SESSION command
-CREATE EVENT SESSION MonitorUserDefinedException ON SERVER
+CREATE EVENT SESSION UserDefindException ON SERVER
 
 --Add events to this seesion with ADD EVENT clause
 ADD EVENT sqlserver.error_reported (
@@ -25,61 +26,101 @@ ADD EVENT sqlserver.error_reported (
 ACTION (
 sqlserver.session_id,
 sqlserver.sql_text,
-sqlserver.tsql_stack
+sqlserver.tsql_stack,
+sqlserver.client_app_name, 
+sqlserver.client_hostname,  
+sqlserver.database_name, 
+sqlserver.username
 )
 WHERE ([package0].[greater_than_int64]([severity], (10))) --Specify predicates to filter out your events
 )
 
 --Specify the target where event data will be written with ADD TARGET clause
-ADD TARGET package0.ring_buffer
-WITH (max_dispatch_latency = 1seconds)
+-- ADD TARGET package0.ring_buffer
+-- WITH (max_dispatch_latency = 1seconds)
+
+ADD TARGET package0.event_file (SET
+    filename = N'/var/log/UserDefindException.xel'
+    ,metadatafile = N'/var/log/UserDefindException.xem'
+    ,max_file_size = (5)
+    ,max_rollover_files = (10)) WITH (max_dispatch_latency = 1seconds)
 GO 
 
 
 --This query will give details about event session, its events, actions, targets
-SELECT sessions.name AS SessionName, 
+SELECT [sessions].name AS SessionName, 
        sevents.package as PackageName,
        sevents.name AS EventName,
-       sevents.predicate, 
+       sevents.predicate [Predicate], 
        sactions.name AS ActionName, 
        stargets.name AS TargetName
-FROM sys.server_event_sessions sessions
+FROM sys.server_event_sessions [sessions]
 INNER JOIN sys.server_event_session_events sevents
     ON sessions.event_session_id = sevents.event_session_id
 INNER JOIN sys.server_event_session_actions sactions
     ON sessions.event_session_id = sactions.event_session_id
 INNER JOIN sys.server_event_session_targets stargets
     ON sessions.event_session_id = stargets.event_session_id
-WHERE sessions.name = 'MonitorUserDefinedException'
+WHERE sessions.name = 'UserDefindException'
 GO 
 
 
 --We need to enable event session to capture event and event data
-ALTER EVENT SESSION MonitorUserDefinedException
+ALTER EVENT SESSION UserDefindException
 ON SERVER STATE = START
 GO
-SELECT * FROM sys.dm_xe_sessions
-WHERE name like 'MonitorUserDefinedException'
+
+SELECT * 
+FROM sys.dm_xe_sessions
+WHERE name like 'UserDefindException'
 GO
+
+-- Some failing queries
 RAISERROR('User Defined Exception!!!', 16, 1)
+GO 
+
+SELECT 1/0
 GO 
 
 
 --This query will display the captured event data for specified event session
-SELECT CAST(stargets.target_data AS XML)
-FROM sys.dm_xe_session_targets stargets
-INNER JOIN sys.dm_xe_sessions sessions
-    ON sessions.address = stargets.event_session_address
-WHERE sessions.name = 'MonitorUserDefinedException'
-GO 
+-- SELECT
+--     t.c.query('.')                                                                  as EventXML,
+--     t.c.value('(.[@name=''error_reported'']/@timestamp)[1]','DATETIME')             as [Timestamp],
+--     t.c.value('(./action[@name=''database_name'']/value)[1]','varchar(max)')        as [Database],
+--     t.c.value('(./data[@name=''message'']/value)[1]','varchar(max)')                as [Message],
+--     t.c.value('(./action[@name=''sql_text'']/value)[1]','varchar(max)')             as [Statement]
+-- FROM (
+--     SELECT CAST(stargets.target_data AS XML) [XML Data]
+--     FROM sys.dm_xe_session_targets stargets
+--     INNER JOIN sys.dm_xe_sessions sessions
+--         ON sessions.address = stargets.event_session_address
+--     WHERE sessions.name = 'UserDefindException') as me
+-- CROSS APPLY [XML Data].nodes('/RingBufferTarget/event') t(c)
+-- GO 
 
+-- or if you specify target as a file than you can read from file
+SELECT
+    [XML Data],
+    [XML Data].value('(/event[@name=''error_reported'']/@timestamp)[1]','DATETIME')             AS [Timestamp],
+    [XML Data].value('(/event/action[@name=''database_name'']/value)[1]','varchar(max)')        AS [Database],
+    [XML Data].value('(/event/data[@name=''message'']/value)[1]','varchar(max)')                AS [Message],
+    [XML Data].value('(/event/action[@name=''sql_text'']/value)[1]','varchar(max)')             AS [Statement]
+FROM
+    (SELECT
+        OBJECT_NAME              AS [Event], 
+        CONVERT(XML, event_data) AS [XML Data]
+    FROM
+        sys.fn_xe_file_target_read_file
+    ('/var/log/UserDefindException*.xel',NULL,NULL,NULL)) as me;
+GO
 
---You can stop event session to capture event data
-ALTER EVENT SESSION MonitorUserDefinedException
+--Stop event session to capture event data
+ALTER EVENT SESSION UserDefindException
 ON SERVER STATE = STOP
 GO
 
 
 --To remove a event session, use DROP EVENT SESSION command
-DROP EVENT SESSION MonitorUserDefinedException ON SERVER
+DROP EVENT SESSION UserDefindException ON SERVER
 GO 

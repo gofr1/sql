@@ -14,5 +14,5 @@ inner join dbo.Person p
 INNER JOIN dbo.Stuff s 
    ON s.Id = wl.StuffId;
 
-WAITFOR DELAY '00:00:20';
+--WAITFOR DELAY '00:00:20';
 COMMIT TRANSACTION;

@@ -1,7 +1,7 @@
--- Space used by tables
+-- Space used by tables (table size)
 SELECT t.[Name] TableName,
        s.[Name] SchemaName,
-       p.[Rows] RowCnt,
+       SUM(p.[Rows]) RowCnt,
        SUM(a.total_pages) * 8 TotalSpaceKB,
        SUM(a.used_pages) * 8 UsedSpaceKB,
        (SUM(a.total_pages) - SUM(a.used_pages)) * 8 UnusedSpaceKB
@@ -13,10 +13,10 @@ LEFT OUTER JOIN sys.schemas s ON t.schema_id = s.schema_id
 WHERE t.[Name] LIKE '%'
   AND t.is_ms_shipped = 0
   AND i.object_id > 255
-GROUP BY t.[Name], s.[Name], p.[Rows]
+GROUP BY t.[Name], s.[Name]
 ORDER BY t.[Name]
 
---Space used by indexes
+--Space used by indexes (index size)
 SELECT OBJECT_NAME(i.object_id) TableName,
        i.[name] IndexName,
        i.index_id IndexID,

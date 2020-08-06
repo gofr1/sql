@@ -11,8 +11,10 @@ WHERE p.partition_number <> 1;
 SELECT ps.Name AS PartitionScheme, 
        pf.name AS PartitionFunction,
        fg.name AS FileGroupName,
+       i.name AS IndexName,
        p.rows, 
-       prv.value AS PartitionFunctionValue,fg.data_space_id
+       prv.value AS PartitionFunctionValue,
+       p.partition_number as PartitionNumber
 FROM sys.indexes i 
 INNER JOIN sys.partitions p 
     ON i.object_id=p.object_id AND i.index_id=p.index_id 

@@ -43,11 +43,11 @@ CREATE NONCLUSTERED INDEX IX_IndexTest ON dbo.IndexTest (Id) INCLUDE ([Value])
 
 
 SELECT * 
-FROM sys.dm_db_index_physical_stats  
-    (DB_ID(N'DEMO'), OBJECT_ID(N'dbo.IndexTest'), NULL, NULL , 'DETAILED'); 
+FROM sys.dm_db_index_physical_stats (DB_ID(N'DEMO'), OBJECT_ID(N'dbo.IndexTest'), NULL, NULL , 'DETAILED')
+WHERE index_level = 0; 
 
-    SELECT i.[name] AS IndexName
-    ,SUM(s.[used_page_count]) * 8 AS IndexSizeKB
+SELECT i.[name] AS IndexName,
+       SUM(s.[used_page_count]) * 8 AS IndexSizeKB
 FROM sys.dm_db_partition_stats AS s
 INNER JOIN sys.indexes AS i ON s.[object_id] = i.[object_id]
     AND s.[index_id] = i.[index_id]

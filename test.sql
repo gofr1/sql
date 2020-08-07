@@ -3,10 +3,11 @@ SELECT DB_NAME(),
        CURRENT_TIMESTAMP,
        @@VERSION;
 
---Get database files location
+--Get database files location and size 
 SELECT db.name AS DBName,
-       type_desc AS FileType,
-       Physical_Name AS LocationOfFiles
+       mf.type_desc AS FileType,
+       mf.physical_name AS LocationOfFiles,
+       mf.[size] * 8.0 / 1024 as FileSizeMB
 FROM sys.master_files mf
 INNER JOIN sys.databases db 
     ON db.database_id = mf.database_id;
@@ -27,8 +28,18 @@ SELECT database_id as Id,
 FROM sys.databases;
 
 -- Check if Full-Text Search is installed
-SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled');
+SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled') IsFullTextInstalled;
 
 --Get data about machine on which sql server is running
 SELECT *
 FROM sys.dm_os_host_info;
+
+--Get property information about the server instance.
+SELECT SERVERPROPERTY('Collation') Collation,
+       SERVERPROPERTY('Edition') [Edition],
+       SERVERPROPERTY('InstanceName') InstanceName,
+       SERVERPROPERTY('IsFullTextInstalled') IsFullTextInstalled,
+       SERVERPROPERTY('IsPolyBaseInstalled') IsPolyBaseInstalled,
+       SERVERPROPERTY('LicenseType') LicenseType,
+       SERVERPROPERTY('ProductUpdateLevel') ProductUpdateLevel,
+       SERVERPROPERTY('SqlSortOrderName') SqlSortOrderName

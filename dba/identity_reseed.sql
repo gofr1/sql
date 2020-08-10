@@ -1,0 +1,4 @@
+USE DEMO;
+
+DBCC CHECKIDENT ('dbo.Emails'); 
+DBCC CHECKIDENT ('dbo.Emails', RESEED, 1);

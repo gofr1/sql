@@ -1,0 +1,15 @@
+USE DEMO;
+
+BEGIN TRANSACTION
+INSERT INTO dbo.Emails VALUES('myname@example.com')
+ALTER TABLE dbo.Emails ALTER COLUMN Email varchar(25)
+INSERT INTO dbo.Emails VALUES('somedigitshere1234567890@example.com') --Here goes error
+
+IF(@@ERROR > 0)
+BEGIN
+    ROLLBACK TRANSACTION 
+END
+ELSE
+BEGIN
+   COMMIT TRANSACTION
+END

@@ -5,6 +5,7 @@ SELECT DB_NAME(),
 
 --Get database files location and size 
 SELECT db.name AS DBName,
+       mf.name as [FileName],
        mf.type_desc AS FileType,
        mf.physical_name AS LocationOfFiles,
        mf.[size] * 8.0 / 1024 as FileSizeMB

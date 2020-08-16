@@ -9,7 +9,7 @@ SELECT OBJECT_SCHEMA_NAME(o.object_id) as schema_name,
        c.text as script_text
 FROM sys.objects o 
 INNER JOIN sys.syscomments c 
-    ON o.[object_id] = c.id
+    ON o.[object_id] = c.id;
 
 --Table definition
 SELECT OBJECT_SCHEMA_NAME(t.object_id) as schema_name,
@@ -27,4 +27,4 @@ INNER JOIN sys.columns c
     ON t.object_id = c.object_id
 INNER JOIN sys.types ty 
     ON c.system_type_id = ty.system_type_id
-WHERE t.[type] = 'U'
+WHERE t.[type] = 'U';

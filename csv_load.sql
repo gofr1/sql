@@ -19,7 +19,18 @@ CREATE TABLE dbo.TestCSVLoad (
 
 BULK INSERT dbo.TestCSVLoad
 FROM '/var/opt/mssql/load/test_CSV_File.txt'
-WITH (FIELDTERMINATOR = ',', ROWTERMINATOR = '\n');
+WITH (
+    FIELDTERMINATOR = ',', 
+    ROWTERMINATOR = '\n' --for windows it is usually \r\n
+); 
 
 SELECT *
 FROM dbo.TestCSVLoad;
+
+--Read from csv with file format
+SELECT *
+FROM OPENROWSET (
+    BULK '/var/opt/mssql/load/small.csv', 
+    FORMATFILE = '/var/opt/mssql/load/small.fmt'
+) AS DATA;
+

@@ -37,7 +37,7 @@ ON DATABASE;--object_name | DATABASE | ALL SERVER
 DROP TABLE IF EXISTS dbo.TestDropAlterTrigger;
 
 --Check that trigger is disabled
-SELECT name,
+SELECT [name],
        is_disabled --  will show 1
 FROM sys.triggers;
 

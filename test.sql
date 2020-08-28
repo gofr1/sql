@@ -35,6 +35,11 @@ SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled') IsFullTextInstalled;
 SELECT *
 FROM sys.dm_os_host_info;
 
+--Returns a miscellaneous set of useful information about the computer, 
+--and about the resources available to and consumed by SQL Server.
+SELECT *
+FROM sys.dm_os_sys_info;
+
 --Get property information about the server instance.
 SELECT SERVERPROPERTY('Collation') Collation,
        SERVERPROPERTY('Edition') [Edition],

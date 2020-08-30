@@ -28,7 +28,7 @@ CREATE TABLE dbo.Test (
     Id INT IDENTITY(1,1) PRIMARY KEY NONCLUSTERED, --In memory tables should have NONCLUSTERED PK
     [Name] VARCHAR(50) NOT NULL,
     INDEX IX_CS_Test CLUSTERED COLUMNSTORE --But we can add clustered columnstore index
-) WITH (MEMORY_OPTIMIZED=ON)
+) WITH (MEMORY_OPTIMIZED=ON) -- DURABILTY = SCHEMA_AND_DATA (is default)
 GO
 
 --You can rebuild/reorginize index online w/o interupting users

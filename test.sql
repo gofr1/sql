@@ -48,4 +48,4 @@ SELECT SERVERPROPERTY('Collation') Collation,
        SERVERPROPERTY('IsPolyBaseInstalled') IsPolyBaseInstalled,
        SERVERPROPERTY('LicenseType') LicenseType,
        SERVERPROPERTY('ProductUpdateLevel') ProductUpdateLevel,
-       SERVERPROPERTY('SqlSortOrderName') SqlSortOrderName
+       SERVERPROPERTY('SqlSortOrderName') SqlSortOrderName;

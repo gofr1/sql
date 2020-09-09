@@ -67,9 +67,9 @@ FROM dbo.MergeTableA a
 INNER JOIN dbo.MergeTableB b
     ON a.n = b.n
 OPTION (MERGE JOIN); --Hash join by default
---Worktable is introduced because SQL Sever is not sure about duplicates in tables
---and also you can see SORT operator in plan
---with many-to-many = true
+--*Worktable is introduced because SQL Sever is not sure about duplicates in tables
+--*and also you can see SORT operator in plan
+--*with many-to-many = true
 
 SET STATISTICS IO OFF;
 SET STATISTICS PROFILE OFF;
@@ -93,7 +93,7 @@ SELECT a.*, b.*
 FROM dbo.MergeTableA a
 INNER JOIN dbo.MergeTableB b
     ON a.n = b.n;
---Now we have merge join with many-to-many = false, because both tables are unique
+--*Now we have merge join with many-to-many = false, because both tables are unique
 
 SET STATISTICS IO OFF;
 SET STATISTICS PROFILE OFF;

@@ -1,11 +1,11 @@
 USE [master];
 
---Returns information about all the data pages that are currently in the SQL Server buffer pool. T
+--Returns information about all the data pages that are currently in the SQL Server buffer pool
 SELECT *
 FROM sys.dm_os_buffer_descriptors;
 
 --The following query returns you, how much space is wasted by every database on your SQL Server instance
---and the count of pages loaded for each databas
+--and the count of pages loaded for each database
 SELECT CASE database_id WHEN 32767 THEN 'ResourceDb' ELSE db_name(database_id) END db_name,
        SUM(free_space_in_bytes) / 1024.0 free_kb,
        COUNT(*) cached_pages_count,
@@ -16,7 +16,7 @@ ORDER BY SUM(free_space_in_bytes) DESC;
 
 USE DEMO;
 
---If you there was no queries on your databa you will see only system objects
+--If you there was no queries on your database you will see only system objects
 SELECT [name],
        CASE WHEN index_id = 0 THEN 'heap'
             WHEN index_id = 1 THEN 'clustered index'

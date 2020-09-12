@@ -1,13 +1,8 @@
-sp_configure 'show advanced options', 1;
-GO
-RECONFIGURE;
-GO
-sp_configure 'max server memory', 4096;
-GO
-RECONFIGURE;
-GO
+USE [master];
 
-sp_configure 'show advanced options', 0;
-GO
+EXEC sp_configure 'show advanced options', 1;
 RECONFIGURE;
-GO
+EXEC sp_configure 'max server memory', 4096;
+RECONFIGURE;
+EXEC sp_configure 'show advanced options', 0;
+RECONFIGURE;

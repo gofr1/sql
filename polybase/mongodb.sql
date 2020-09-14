@@ -1,45 +1,28 @@
-USE [master];
-
---Confirm installation
-SELECT SERVERPROPERTY ('IsPolyBaseInstalled') AS IsPolyBaseInstalled;
-
---Check if PolyBase is enabled
-SELECT *
-FROM sys.configurations c 
-WHERE c.[name] = 'polybase enabled';
-
---Enable PolyBase
-EXEC sp_configure @configname = 'polybase enabled', @configvalue = 1;
-RECONFIGURE;
-
-DROP DATABASE IF EXISTS Mongo;
-
-CREATE DATABASE Mongo;
-
-USE Mongo;
+USE PolybaseTesting;
 
 CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'VeryStr0ngPa$$wordG0esHere';
 
 --Specify credentials to external data source
 --IDENTITY: user name for external source. 
 --SECRET: password for external source.
+DROP DATABASE SCOPED CREDENTIAL mongo_credentials;
 
-CREATE DATABASE SCOPED CREDENTIAL MongoCredentials WITH IDENTITY = N'gofr', Secret = N'sl1pKN)T';
+CREATE DATABASE SCOPED CREDENTIAL mongo_credentials 
+WITH IDENTITY = N'testsql', Secret = N'testsql';
 
-/*  LOCATION: Location string should be of format '<type>://<server>[:<port>]'.
-*  PUSHDOWN: specify whether computation should be pushed down to the source. ON by default.
-*CONNECTION_OPTIONS: Specify driver location
-*  CREDENTIAL: the database scoped credential, created above.
-*/
+--LOCATION: Location string should be of format '<type>://<server>[:<port>]'.
+--PUSHDOWN: specify whether computation should be pushed down to the source. ON by default.
+--CONNECTION_OPTIONS: Specify driver location
+--CREDENTIAL: the database scoped credential, created above.
 
-DROP EXTERNAL DATA SOURCE MyMongoDB;
+DROP EXTERNAL DATA SOURCE my_mongodb;
 
-CREATE EXTERNAL DATA SOURCE MyMongoDB
+CREATE EXTERNAL DATA SOURCE my_mongodb
 WITH (
     LOCATION = 'mongodb://localhost:27017',
     -- PUSHDOWN = ON | OFF,
-    CONNECTION_OPTIONS = 'ssl=false;authSource=admin;',
-    CREDENTIAL = MongoCredentials
+    CONNECTION_OPTIONS = 'ssl=false;',
+    CREDENTIAL = mongo_credentials
 );
 
 --*{
@@ -64,7 +47,7 @@ CREATE EXTERNAL TABLE zips(
 )
 WITH (
     LOCATION='test.zips',
-    DATA_SOURCE= MyMongoDB
+    DATA_SOURCE= my_mongodb
 );
 
 --Check table data
@@ -79,7 +62,9 @@ WHERE _id = N'01001';
 --*  "type": "Computer"
 --*}
 
-CREATE EXTERNAL TABLE products(
+DROP EXTERNAL TABLE dbo.products;
+
+CREATE EXTERNAL TABLE products (
     [_id]  NVARCHAR(24) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
     [item] NVARCHAR(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS,
     [qty] FLOAT(53),
@@ -87,8 +72,8 @@ CREATE EXTERNAL TABLE products(
 )
 WITH (
     LOCATION='test.products',
-    DATA_SOURCE= MyMongoDB
+    DATA_SOURCE= my_mongodb
 );
 
 SELECT *
-FROM dbo.products
+FROM dbo.products;

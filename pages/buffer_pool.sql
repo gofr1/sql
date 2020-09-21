@@ -1,3 +1,12 @@
+--*Buffer pool is a cache of SQL Server
+
+--*Some operator form our execution plan requests a page from buffer pool
+--*If the page is in buffer pool it is retrieved immediately (logical read)
+
+--*If the page is not in buffer pool it send async request to Storage,
+--*storage returns a page to buffer pool (it is now in-memory) and buffer pool
+--*returns the page to query (physical read)
+
 USE [master];
 
 --Returns information about all the data pages that are currently in the SQL Server buffer pool
@@ -17,15 +26,16 @@ ORDER BY SUM(free_space_in_bytes) DESC;
 USE DEMO;
 
 --If you there was no queries on your database you will see only system objects
-SELECT [name],
-       CASE WHEN index_id = 0 THEN 'heap'
-            WHEN index_id = 1 THEN 'clustered index'
-            WHEN index_id >= 2 THEN 'nonclustered index'
+SELECT t.[name],
+       CASE WHEN obj.index_id = 0 THEN 'heap'
+            WHEN obj.index_id = 1 THEN 'clustered index'
+            WHEN obj.index_id >= 2 THEN 'nonclustered index'
         END as [index],
-       COUNT(*) cached_pages_count
+       COUNT(*) cached_pages_count,
+       COUNT(*) * 8192 / 1024.0 used_kb -- Page count * page size / 1024 (bytes in kb)
 FROM sys.dm_os_buffer_descriptors AS bd   
 INNER JOIN (  
-    SELECT object_name(p.object_id) AS [name],
+    SELECT p.object_id,
            p.index_id,
            au.allocation_unit_id
     FROM sys.allocation_units AS au  
@@ -34,16 +44,21 @@ INNER JOIN (
         --Indicates the ID of the data heap or B-tree (HoBT) that contains the rows for this partition
            AND (au.type = 1 OR au.type = 3) 
     UNION ALL  
-    SELECT object_name(p.object_id) AS [name],
+    SELECT p.object_id,
            p.index_id, 
            au.allocation_unit_id  
     FROM sys.allocation_units AS au  
     INNER JOIN sys.partitions AS p   
-        ON au.container_id = p.partition_id AND au.type = 2  
+        ON au.container_id = p.partition_id 
+        --Indicates the partition ID.
+        AND au.type = 2  
 ) AS obj   
-    ON bd.allocation_unit_id = obj.allocation_unit_id  
-WHERE database_id = DB_ID()  
-GROUP BY [name], index_id   
+    ON bd.allocation_unit_id = obj.allocation_unit_id
+INNER JOIN sys.tables t 
+    ON t.object_id = obj.object_id
+WHERE database_id = DB_ID() -- In current database
+    AND t.is_ms_shipped = 0 --To exclude system tables
+GROUP BY t.[name], obj.index_id   
 ORDER BY cached_pages_count DESC; 
 
 --Select from one table and run the query above once again

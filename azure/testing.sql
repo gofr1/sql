@@ -1,3 +1,5 @@
+USE [main-db];
+
 DROP TABLE IF EXISTS dbo.test;
 
 CREATE TABLE dbo.test (

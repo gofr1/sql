@@ -1,8 +1,22 @@
 USE DEMO;
 
+--Returns information about currently active lock manager resources in SQL Server
+--
+--resource_type - Represents the resource type. The value can be one of the following: 
+--DATABASE, FILE, OBJECT, PAGE, KEY, EXTENT, RID, APPLICATION, METADATA, HOBT, or ALLOCATION_UNIT.
+--
+--resource_associated_entity_id - ID of the entity in a database with which a resource is
+--associated. This can be an object ID, Hobt ID, or an Allocation Unit ID, depending on the resource type.
+
 SELECT *
 FROM sys.dm_tran_locks
 WHERE resource_type <> 'DATABASE';
+
+
+--Returns information about the wait queue of tasks that are waiting on some resource.
+SELECT *
+FROM sys.dm_os_waiting_tasks;
+--WHERE session_id in ();
 
 --They are (usually) set temporarily, and they cause deadlocking information to be dumped to the SQL management logs.
 -- -1 enables the trace flag globally, if no digit - means only for current connection

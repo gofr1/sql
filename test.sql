@@ -61,3 +61,6 @@ SELECT SERVERPROPERTY('Collation') Collation,
        SERVERPROPERTY('LicenseType') LicenseType,
        SERVERPROPERTY('ProductUpdateLevel') ProductUpdateLevel,
        SERVERPROPERTY('SqlSortOrderName') SqlSortOrderName;
+  
+SELECT *  
+FROM sys.database_scoped_configurations;

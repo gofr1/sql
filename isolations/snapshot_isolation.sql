@@ -24,7 +24,7 @@ CREATE TABLE dbo.TestSnapshot (
 
 INSERT INTO TestSnapshot VALUES (1,1);
 
-
+--Update statement from start_trun.sql will not block this select
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
 
 SELECT *

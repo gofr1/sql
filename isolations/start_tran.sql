@@ -2,7 +2,7 @@ USE [master];
 --Just in case get the session_id
 SELECT @@SPID session_id
 
---For SNAPSHOT ISOLATION
+--For RCSI
 USE SSIsoTest;
 
 SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
@@ -53,11 +53,29 @@ INSERT INTO Person.Address (
 COMMIT TRANSACTION;
 
 ROLLBACK TRANSACTION;
+
+--For SNAPSHOT ISOLATION
+USE DEMO;
+
+BEGIN TRANSACTION;
+
+UPDATE dbo.Emails
+SET Email = 'address@example.com'
+WHERE Id = 3
+
+COMMIT TRANSACTION;
+
+ROLLBACK TRANSACTION;
+
 -------------------------------
 --Rollback script for changes Above
-UPDATE Person.Person
+UPDATE AdventureWorks2012.Person.Person
 SET Title = 'Mr.'
 WHERE BusinessEntityId = 307;
 
-DELETE FROM Person.Address
+DELETE FROM AdventureWorks2012.Person.Address
 WHERE StateProvinceID = 11 AND AddressLine1 = ''
+
+UPDATE DEMO.dbo.Emails
+SET Email = 'email@example.com'
+WHERE Id = 3

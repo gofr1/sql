@@ -1,36 +1,47 @@
 USE [master];
+--At first let's enable Snapshot Isolation on database
+ALTER DATABASE DEMO SET ALLOW_SNAPSHOT_ISOLATION ON;
 
-DROP DATABASE IF EXISTS SSIsoTest;
+USE DEMO;
+--Set isolation level to SNAPSHOT
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT;
 
-CREATE DATABASE SSIsoTest;
-
-ALTER DATABASE SSIsoTest SET RECOVERY SIMPLE;
-
---Snapshot isolation must be enabled by setting the ALLOW_SNAPSHOT_ISOLATION ON database 
---option before it is used in transactions. This activates the mechanism for storing row 
---versions in the temporary database (tempdb). 
-ALTER DATABASE SSIsoTest SET ALLOW_SNAPSHOT_ISOLATION ON;
-
-ALTER DATABASE SSIsoTest SET READ_COMMITTED_SNAPSHOT ON;
-
-USE SSIsoTest;
-
-DROP TABLE IF EXISTS dbo.TestSnapshot;
-
-CREATE TABLE dbo.TestSnapshot (
-    ID int primary key, 
-    valueCol int
-);
-
-INSERT INTO TestSnapshot VALUES (1,1);
-
---Update statement from start_trun.sql will not block this select
-SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+BEGIN TRANSACTION;
+-- Selected value will be:
+--*Id   Email
+--*3    email@example.com
 
 SELECT *
-FROM dbo.TestSnapshot;
+FROM dbo.Emails
+WHERE Id = 3;
 
+--During this delay let's run an update query from start_tran.sql
+WAITFOR DELAY '00:00:10';
 
-USE [master];
-ALTER DATABASE SSIsoTest SET READ_COMMITTED_SNAPSHOT OFF;
---Now if we open transaction we could not read data from table
+--Evan we changed the data we will get same results:
+--*Id   Email
+--*3    email@example.com
+
+SELECT *
+FROM dbo.Emails
+WHERE Id = 3;
+
+--And this update will failed
+UPDATE dbo.Emails
+SET Email = 'AHA@example.com'
+WHERE Id = 3;
+--!Msg 3960, Level 16, State 2, Line 18
+--!Snapshot isolation transaction aborted due to update conflict. 
+--!You cannot use snapshot isolation to access table 'dbo.Emails' directly or indirectly 
+--!in database 'DEMO' to update, delete, or insert the row that has been modified or 
+--!deleted by another transaction. Retry the transaction or change the isolation level 
+--!for the update/delete statement. 
+
+COMMIT TRANSACTION;
+
+SELECT *
+FROM dbo.Emails
+WHERE Id = 3;
+--In a table there will be new value:
+--*Id   Email
+--*3    address@example.com

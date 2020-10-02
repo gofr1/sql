@@ -1,16 +1,51 @@
+USE [master];
+
 -- List current extended events sessions
 SELECT * 
-FROM sys.server_event_sessions
+FROM sys.server_event_sessions;
 
--- List of default actions
-SELECT p.name + '.' + o.name action_name
+-- List of ACTIONS
+SELECT o.object_type,
+       p.name + '.' + o.name action_name,
+       o.[description],
+       o.type_name,
+       o.type_size,
+       o.package_guid
 FROM sys.dm_xe_objects o
 INNER JOIN sys.dm_xe_packages p
     ON o.package_guid = p.guid
 WHERE o.object_type = 'action' 
-ORDER BY o.name
+ORDER BY o.name;
+
+-- List of EVENTS
+SELECT o.object_type,
+       p.name + '.' + o.name event_name,
+       o.[description],
+       o.type_name,
+       o.type_size,
+       o.package_guid
+FROM sys.dm_xe_objects o
+INNER JOIN sys.dm_xe_packages p
+    ON o.package_guid = p.guid
+WHERE o.object_type = 'event' 
+ORDER BY o.name;
 GO
 
+-- List of MAPpings that could be found in resulted XML
+SELECT p.name,
+       o.name,
+       o.object_type,
+       o.[description],
+       mv.map_key,
+       mv.map_value
+FROM sys.dm_xe_objects o
+INNER JOIN sys.dm_xe_map_values mv
+    ON mv.object_package_guid = o.package_guid AND o.name = mv.name
+INNER JOIN sys.dm_xe_packages p
+    ON o.package_guid = p.guid
+ORDER BY o.name, mv.map_key;
+
+-- Extended Event
 
 --Check if the event session is already exisiting, if yes then drop it first
 IF EXISTS(SELECT * FROM sys.server_event_sessions WHERE name='UserDefindException')

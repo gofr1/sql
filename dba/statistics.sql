@@ -1,3 +1,5 @@
+--!20% + 500 rows changes will update statistics
+
 USE [master];
 
 ALTER DATABASE [DEMO] 
@@ -14,6 +16,14 @@ FROM sys.databases
 WHERE database_id > 4 --not system databases
 
 USE DEMO;
+
+--Stats_ID: It is the unique ID of the statistics object
+--Name: It is the statistics name
+--Last_updated: It is the date and time of the last statistics update
+--Rows: It shows the total number of rows at the time of the last statistics update
+--Rows_sampled: It gives the total number of sample rows for the statistics
+--Unfiltered_rows: In the screenshot, you can see both rows_sampled and unfiltered_rows value the same because we did not use any filter in the statistics
+--Modification_counter: It is a vital column to look. We get the total number of modifications since the last statistics update
 
 SELECT sp.stats_id, 
        t.[name],

@@ -1,3 +1,5 @@
+USE [master];
+
 --Check cureent database and sql server version
 SELECT DB_NAME(),
        CURRENT_TIMESTAMP,

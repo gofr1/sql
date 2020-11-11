@@ -1,9 +1,9 @@
 USE [master];
 
 --Check cureent database and sql server version
-SELECT DB_NAME(),
-       CURRENT_TIMESTAMP,
-       @@VERSION;
+SELECT DB_NAME() [db],
+       CURRENT_TIMESTAMP [current_time],
+       @@VERSION [sql_version];
 
 --Get database files location and size 
 SELECT db.name AS DBName,

@@ -8,7 +8,7 @@ CREATE MASTER KEY ENCRYPTION BY PASSWORD = 'VeryStr0ngPa$$wordG0esHere';
 DROP DATABASE SCOPED CREDENTIAL mongo_credentials;
 
 CREATE DATABASE SCOPED CREDENTIAL mongo_credentials 
-WITH IDENTITY = N'testsql', Secret = N'testsql';
+WITH IDENTITY = N'testsql', Secret = N'SOh3TbYhx8ypJPxmt1oOfL';
 
 --LOCATION: Location string should be of format '<type>://<server>[:<port>]'.
 --PUSHDOWN: specify whether computation should be pushed down to the source. ON by default.
@@ -19,9 +19,9 @@ DROP EXTERNAL DATA SOURCE my_mongodb;
 
 CREATE EXTERNAL DATA SOURCE my_mongodb
 WITH (
-    LOCATION = 'mongodb://localhost:27017',
+    LOCATION = 'mongodb://127.0.0.1:27017',
     -- PUSHDOWN = ON | OFF,
-    CONNECTION_OPTIONS = 'ssl=false;',
+    CONNECTION_OPTIONS = 'ssl=false;authSource=admin;readPreference=primary;compressors=disabled;gssapiServiceName=mongodb;',
     CREDENTIAL = mongo_credentials
 );
 
@@ -55,6 +55,11 @@ SELECT [_id], [city], [pop], [state]
 FROM dbo.zips
 WHERE _id = N'01001';
 
+--* _id    city   pop   state
+--* 01001  AGAWAM 15338 MA
+
+
+
 --*{
 --*  "_id": 10,
 --*  "item": "Mpuse",
@@ -77,3 +82,8 @@ WITH (
 
 SELECT *
 FROM dbo.products;
+
+--* _id  item     qty   type
+--* 10   Mpuse    50    Computer
+--* 11   Keyboard 20    accessories
+--* 12   Monitor  100   NULL

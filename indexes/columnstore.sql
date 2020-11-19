@@ -1,4 +1,4 @@
-USE DEMO;
+USE AdventureWorksDW2012;
 --Not a big table, so not much performance improvement
 
 --* A columnstore is data that's logically organized as a table with rows and columns, 

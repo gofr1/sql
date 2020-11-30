@@ -1,5 +1,7 @@
 USE DEMO;
 
+-- Specifies whether SQL Server automatically rolls back the current transaction when a Transact-SQL statement raises a run-time error.
+
 DROP TABLE IF EXISTS dbo.t2;
 DROP TABLE IF EXISTS dbo.t1;
 GO

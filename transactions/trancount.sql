@@ -1,0 +1,40 @@
+USE DEMO;
+GO
+
+CREATE OR ALTER PROCEDURE dbo.TranCount 
+AS
+BEGIN
+-- Returns the number of BEGIN TRANSACTION statements that have occurred on the current connection.
+SELECT @@TRANCOUNT 
+
+END
+GO
+
+EXEC dbo.TranCount
+--* 0
+
+BEGIN TRANSACTION
+EXEC dbo.TranCount
+COMMIT TRANSACTION
+--* 1
+GO
+
+
+CREATE OR ALTER PROCEDURE dbo.TranCount 
+AS
+BEGIN
+BEGIN TRANSACTION
+SELECT @@TRANCOUNT 
+COMMIT TRANSACTION
+END
+GO
+
+
+EXEC dbo.TranCount
+--* 1
+
+BEGIN TRANSACTION
+EXEC dbo.TranCount
+COMMIT TRANSACTION
+--* 2
+GO

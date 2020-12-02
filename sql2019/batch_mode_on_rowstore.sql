@@ -1,5 +1,8 @@
 USE DEMO;
 
+-- SQL Server 2019 feature: Batch mode on rowstore feature
+-- Instead of reading row by row (row store mode) it can read in chunks i.e. batches of 900 rows at a time.
+
 --! Batch mode execution 
 --? is a query processing method, and the advantage of this query 
 --? processing method is to handle multiple rows at a time. This approach gains us 
@@ -33,6 +36,7 @@ SET STATISTICS PROFILE, XML, TIME ON;
 
 SELECT COUNT(*)
 FROM dbo.BatchTest
+OPTION (RECOMPILE)
 
 SET STATISTICS PROFILE, XML, TIME OFF;
 

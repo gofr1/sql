@@ -11,5 +11,7 @@ USE DEMO;
 
 DBCC USEROPTIONS;
 
+-- Removes all clean buffers from the buffer pool, and columnstore objects from the columnstore object pool.
+DBCC DROPCLEANBUFFERS;
 
 

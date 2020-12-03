@@ -45,3 +45,48 @@ DBCC PAGE('DEMO', 1, 1368, 3); -- first child page
 DBCC PAGE('DEMO', 1, 1728, 3); -- second child page
 
 DBCC TRACEOFF(3604);
+
+-- Checking before and after index is applied
+
+SET STATISTICS PROFILE, XML, TIME ON;
+
+SELECT *
+FROM dbo.BatchTest
+WHERE Product = 'raspberry necktie L'
+
+SET STATISTICS PROFILE, XML, TIME OFF;
+
+--* Clustered Index Scan
+
+--* SQL Server Execution Times:
+--* CPU time = 261 ms, elapsed time = 319 ms. 
+
+CREATE NONCLUSTERED INDEX NCI_BatchTest_Product ON dbo.BatchTest(Product)
+
+SET STATISTICS PROFILE, XML, TIME ON;
+
+SELECT *
+FROM dbo.BatchTest
+WHERE Product = 'raspberry necktie L'
+
+SET STATISTICS PROFILE, XML, TIME OFF;
+
+--* SQL Server Execution Times:
+--* CPU time = 4 ms, elapsed time = 9 ms. 
+
+-- Now it performs Index Seek on NCI_BatchTest_Product
+-- And then Clustered Index Seek on PK_BatchTest_Id
+-- With Nested Loop
+
+SET STATISTICS PROFILE, XML, TIME ON;
+
+SELECT *
+FROM dbo.BatchTest
+WHERE Product LIKE 'raspberry necktie %'
+
+SET STATISTICS PROFILE, XML, TIME OFF;
+
+-- Same even if we search with LIKE
+
+--* SQL Server Execution Times:
+--* CPU time = 9 ms, elapsed time = 11 ms. 

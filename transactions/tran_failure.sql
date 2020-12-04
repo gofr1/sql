@@ -146,3 +146,125 @@ SELECT * FROM dbo.TranFailTest;
 
 TRUNCATE TABLE dbo.TranFailTest;
 GO
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+GO
+
+BEGIN TRY
+    BEGIN TRANSACTION
+    
+    INSERT INTO dbo.TranFailTest VALUES (1), (2);
+    
+    UPDATE dbo.TranFailTest
+    SET Something = NULL
+    WHERE Something = 2;
+    
+    COMMIT TRANSACTION
+END TRY
+
+BEGIN CATCH 
+    SELECT ERROR_MESSAGE(), 
+           ERROR_NUMBER()
+
+    ROLLBACK TRANSACTION
+END CATCH
+
+-- In table mode
+--? Cannot insert the value NULL into column 'Something', table 'DEMO.dbo.TranFailTest'; column does not allow nulls. UPDATE fails.	515
+
+SELECT * FROM dbo.TranFailTest;
+--* Something
+-- And everything is rollbacked
+
+TRUNCATE TABLE dbo.TranFailTest;
+GO
+-- Try/Catch basics
+
+CREATE OR ALTER PROCEDURE dbo.TranFail 
+AS
+BEGIN
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+        
+        INSERT INTO dbo.TranFailTest VALUES (1), (2);
+        
+        UPDATE dbo.TranFailTest
+        SET Something = NULL
+        WHERE Something = 2;
+        
+        COMMIT TRANSACTION
+    END TRY
+    
+    BEGIN CATCH 
+        SELECT ERROR_NUMBER() ErrNum,
+               ERROR_MESSAGE() ErrMes
+        
+        ROLLBACK TRANSACTION
+    END CATCH
+
+END
+GO
+
+EXEC dbo.TranFail;
+--* ErrNum  ErrMes
+--* 515     Cannot insert the value NULL into column 'Something', table 'DEMO.dbo.TranFailTest'; column does not allow nulls. UPDATE fails.
+
+SELECT * FROM dbo.TranFailTest;
+--* Something
+
+
+TRUNCATE TABLE dbo.TranFailTest;
+GO
+-- And some nested example
+
+CREATE OR ALTER PROCEDURE dbo.TranFail 
+AS
+BEGIN
+    PRINT CONCAT('Before: ', @@TRANCOUNT)
+
+    SET NOCOUNT ON; --supress messeges like: (2 rows affected) 
+    --SET XACT_ABORT ON;
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+
+        PRINT CONCAT('Within: ', @@TRANCOUNT)
+
+        INSERT INTO dbo.TranFailTest VALUES (1), (2);
+        
+        IF (@@TRANCOUNT = 1) EXEC dbo.TranFail;
+        
+        PRINT CONCAT('After nested call: ', @@TRANCOUNT)
+
+        UPDATE dbo.TranFailTest
+        SET Something = NULL
+        WHERE Something = 2;
+        
+        COMMIT TRANSACTION
+    END TRY
+    
+    BEGIN CATCH 
+        SELECT @@TRANCOUNT TranCount,
+               ERROR_NUMBER() ErrNum,
+               ERROR_MESSAGE() ErrMes;
+
+        IF (@@TRANCOUNT > 0 OR XACT_STATE() = -1) ROLLBACK TRANSACTION;
+
+        THROW;
+    END CATCH
+
+END
+GO
+
+EXEC dbo.TranFail;
+--* Before: 0 
+--* Within: 1 
+--* Before: 1 
+--* Within: 2 
+--* After nested call: 2 
+--! Msg 515, Level 16, State 2, Procedure dbo.TranFail, Line 21
+--! Cannot insert the value NULL into column 'Something', table 'DEMO.dbo.TranFailTest'; column does not allow nulls. UPDATE fails. 
+
+SELECT * FROM dbo.TranFailTest;
+--* Something

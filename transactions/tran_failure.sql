@@ -146,3 +146,68 @@ SELECT * FROM dbo.TranFailTest;
 
 TRUNCATE TABLE dbo.TranFailTest;
 GO
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+GO
+
+BEGIN TRY
+BEGIN TRANSACTION
+
+INSERT INTO dbo.TranFailTest VALUES (1), (2);
+
+UPDATE dbo.TranFailTest
+SET Something = NULL
+WHERE Something = 2;
+
+COMMIT TRANSACTION
+END TRY
+
+BEGIN CATCH 
+SELECT ERROR_MESSAGE(), ERROR_NUMBER()
+ROLLBACK TRANSACTION
+END CATCH
+
+-- In table mode
+--? Cannot insert the value NULL into column 'Something', table 'DEMO.dbo.TranFailTest'; column does not allow nulls. UPDATE fails.	515
+
+SELECT * FROM dbo.TranFailTest;
+--* Something
+-- And everything is rollbacked
+
+TRUNCATE TABLE dbo.TranFailTest;
+GO
+-- Let's try error handling with rollback
+
+CREATE OR ALTER PROCEDURE dbo.TranFail 
+AS
+BEGIN
+
+    BEGIN TRY
+        BEGIN TRANSACTION
+        
+        INSERT INTO dbo.TranFailTest VALUES (1), (2);
+        
+        UPDATE dbo.TranFailTest
+        SET Something = NULL
+        WHERE Something = 2;
+        
+        COMMIT TRANSACTION
+    END TRY
+    
+    BEGIN CATCH 
+        SELECT ERROR_NUMBER() ErrNum,
+               ERROR_MESSAGE() ErrMes
+        
+        ROLLBACK TRANSACTION
+    END CATCH
+
+END
+GO
+
+EXEC dbo.TranFail;
+--* ErrNum  ErrMes
+--* 515     Cannot insert the value NULL into column 'Something', table 'DEMO.dbo.TranFailTest'; column does not allow nulls. UPDATE fails.
+
+SELECT * FROM dbo.TranFailTest;
+--* Something
+

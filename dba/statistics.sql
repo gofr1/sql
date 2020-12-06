@@ -129,7 +129,7 @@ WHERE [Value] like '%Guo'
 -- If we run above query once again
 --* StatsID StatsName                 StatsColID ColumnName
 --* 1       PK_IndexTest_id           1          Id
---* 2       _WA_Sys_00000002_5EDF0F2E 1          Value
+--? 2       _WA_Sys_00000002_5EDF0F2E 1          Value
 
 --! Index-based statistics objects
 CREATE INDEX NCI_IndexTest_Value ON dbo.IndexTest ([Value]);
@@ -137,8 +137,8 @@ CREATE INDEX NCI_IndexTest_Value ON dbo.IndexTest ([Value]);
 --* StatsID StatsName                 StatsColID ColumnName
 --* 1       PK_IndexTest_id           1          Id
 --* 2       _WA_Sys_00000002_5EDF0F2E 1          Value
---* 3       NCI_IndexTest_Value       2          Id
---* 3       NCI_IndexTest_Value       1          Value
+--? 3       NCI_IndexTest_Value       2          Id
+--? 3       NCI_IndexTest_Value       1          Value
 
 --! Statistics histograms
 -- By default, the DBCC SHOW_STATISTICS statement returns the following three types of information:
@@ -193,3 +193,17 @@ SET STATISTICS PROFILE,XML OFF;
 
 --* EstimateRows="1" EstimatedRowsRead="1"
 -- Same as EQ_ROWS for row 7 of DBCC output
+
+--! Creating statistics
+
+CREATE STATISTICS not_aaa ON dbo.IndexTest ([Value])  
+WHERE [Value] != 'aaaa...a'
+WITH FULLSCAN;
+
+--* StatsID StatsName                  StatsColID ColumnName
+--* 1       PK_IndexTest_id            1          Id
+--* 2       _WA_Sys_00000002_5EDF0F2E  1          Value
+--* 3       NCI_IndexTest_Value        2          Id
+--* 3       NCI_IndexTest_Value        1          Value
+--? 4       not_aaa                    1          Value
+-- Here it is!

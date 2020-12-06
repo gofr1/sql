@@ -139,3 +139,57 @@ CREATE INDEX NCI_IndexTest_Value ON dbo.IndexTest ([Value]);
 --* 2       _WA_Sys_00000002_5EDF0F2E 1          Value
 --* 3       NCI_IndexTest_Value       2          Id
 --* 3       NCI_IndexTest_Value       1          Value
+
+--! Statistics histograms
+-- By default, the DBCC SHOW_STATISTICS statement returns the following three types of information:
+-- Header: 
+-- Name of the statistics object, date and time it was last updated, number of rows in the 
+-- participating columns, actual number of sampled rows, number of steps within the histogram, 
+-- and other information
+-- Densities: 
+-- Density vector of the indexed columns based on the formula 1/#_distinct_values. 
+-- The number of distinct values help to determine the selectivity of the column values. 
+-- The more unique values, the higher the selectivity and the more effective the index. 
+-- The number of rows in this section depends on the number of participating columns.
+-- Histogram: 
+-- Value distribution across the column data, incremented in steps based on the 
+-- number of rows, up to 200 steps per statistics object.
+DBCC SHOW_STATISTICS (IndexTest, PK_IndexTest_id);
+
+--* Name            Updated             Rows    Rows Sampled  Steps Density  Average key length  String Index  Filter Expression  Unfiltered Rows  Persisted Sample Percent
+--* PK_IndexTest_id Dec  2 2020  8:54AM 24568   20853         78    1        4	                 NO            NULL               24568            0
+-- 
+-- In this case, the histogram is broken into 78 steps, based on ranges of data in the first indexed column, id. 
+-- Each step is listed in its own row in the histogram and represents a range of values. 
+-- For example, the value in the RANGE_HI_KEY column of row 7 (the highlighted row) is 1743. 
+-- This value represents the highest value in a data range that includes all values from 1371 (row 6 + 1) through 1743.
+-- 
+--*   RANGE_HI_KEY  RANGE_ROWS  EQ_ROWS  DISTINCT_RANGE_ROWS  AVG_RANGE_ROWS
+--* 6 1370          111.988     1	     112                  1
+--* 7 1743          413.7661    1	     372                  1.112274
+-- 
+-- The histogram also includes the RANGE_ROWS column, which provides the number of rows within the range, 
+-- excluding the rows associated with the RANGE_HI_KEY value, the upper end of the range. 
+-- In this case, there are 413.7661 rows in the range, excluding the upper range value. 
+-- However, the EQ_ROWS value indicates the number of rows that are associated with the upper end value. 
+-- That means 1 rows have a the id value of 1743.
+-- 
+-- The DISTINCT_RANGE_ROWS column shows the number of unique values within the current range, 
+-- once again excluding the upper range value. As a result, the range of values from 1371 through 1742 
+-- includes 372 unique values.
+-- 
+-- Finally, the AVG_RANGE_ROWS column shows the average number of rows for each distinct value, 
+-- based on the formula range_rows/distinct_range_rows, once again excluding the upper end rows. 
+-- This gives us an average of over 1 row for each distinct value within the range.
+
+SET STATISTICS PROFILE, XML ON;
+
+SELECT * 
+FROM dbo.IndexTest
+WHERE Id = 1743
+OPTION(RECOMPILE);
+
+SET STATISTICS PROFILE,XML OFF;
+
+--* EstimateRows="1" EstimatedRowsRead="1"
+-- Same as EQ_ROWS for row 7 of DBCC output

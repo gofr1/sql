@@ -207,3 +207,18 @@ WITH FULLSCAN;
 --* 3       NCI_IndexTest_Value        1          Value
 --? 4       not_aaa                    1          Value
 -- Here it is!
+
+DBCC SHOW_STATISTICS (IndexTest, not_aaa);
+
+--* RANGE_HI_KEY    RANGE_ROWS  EQ_ROWS  DISTINCT_RANGE_ROWS  AVG_RANGE_ROWS
+--* Andrew Hill     45          3        42                   1.071429
+
+SET STATISTICS PROFILE, XML ON;
+
+SELECT * 
+FROM dbo.IndexTest
+WHERE [Value] = 'Andrew Hill';
+
+SET STATISTICS PROFILE, XML OFF;
+
+--* EstimateRows="3" EstimatedRowsRead="3"

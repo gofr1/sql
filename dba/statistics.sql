@@ -103,3 +103,39 @@ SELECT OBJECT_NAME([object_id]) table_name,
        stats_id
 FROM sys.stats
 WHERE name = 'PK_IndexTest_id';
+
+
+SELECT s.stats_id StatsID,
+       s.name StatsName,
+       sc.stats_column_id StatsColID,
+       c.name ColumnName 
+FROM sys.stats s 
+INNER JOIN sys.stats_columns sc
+    ON s.object_id = sc.object_id AND s.stats_id = sc.stats_id
+INNER JOIN sys.columns c
+    ON sc.object_id = c.object_id AND sc.column_id = c.column_id
+WHERE OBJECT_NAME(s.object_id) = 'IndexTest'
+ORDER BY s.stats_id, sc.column_id;
+
+--* StatsID StatsName       StatsColID ColumnName
+--* 1       PK_IndexTest_id 1          Id
+
+--! Column-based statistics objects
+-- SQL Server generates a statistics object when you include a column in a query predicate such as a WHERE clause. 
+SELECT * 
+FROM dbo.IndexTest
+WHERE [Value] like '%Guo'
+
+-- If we run above query once again
+--* StatsID StatsName                 StatsColID ColumnName
+--* 1       PK_IndexTest_id           1          Id
+--* 2       _WA_Sys_00000002_5EDF0F2E 1          Value
+
+--! Index-based statistics objects
+CREATE INDEX NCI_IndexTest_Value ON dbo.IndexTest ([Value]);
+-- If we run above query once again
+--* StatsID StatsName                 StatsColID ColumnName
+--* 1       PK_IndexTest_id           1          Id
+--* 2       _WA_Sys_00000002_5EDF0F2E 1          Value
+--* 3       NCI_IndexTest_Value       2          Id
+--* 3       NCI_IndexTest_Value       1          Value

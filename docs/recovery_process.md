@@ -12,10 +12,10 @@ Occurs when a restore operation is executed. This process makes sure all the com
 
 ## Four consecutive phases that take place during SQL Server recovery
 
-1. *Discovery* – is to find the logical structure of the Transaction log file.
-2. *Analysis* – is to find the best LSN starting from which rolling forward can be done during redo phase.
-3. *Redo* – is the phase during which the changes caused by active transactions (at the time of crash) are hardened onto Data files.
-4. *Undo* – is the phase where in, rolling back of the active transactions for consistency, takes place.
+1. *Discovery* – is to find the logical structure of the Transaction log file.  
+2. *Analysis* – is to find the best LSN starting from which rolling forward can be done during redo phase.  
+3. *Redo* – is the phase during which the changes caused by active transactions (at the time of crash) are hardened onto Data files.  
+4. *Undo* – is the phase where in, rolling back of the active transactions for consistency, takes place.  
 
 ### Discovery Phase
 

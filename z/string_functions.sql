@@ -32,3 +32,23 @@ FROM Order_ ord
 CROSS APPLY STRING_SPLIT(DeviceInfo, '|') di 
 WHERE ord.DeviceInfo IS NOT NULL OR ord.DeviceInfo != ''
 
+--! STRING_ESCAPE
+-- Escapes special characters in texts and returns text with escaped characters. 
+-- STRING_ESCAPE is a deterministic function, introduced in SQL Server 2016.
+
+-- Currently the value supported is 'json'.
+
+SELECT STRING_ESCAPE('\	/
+\\	"	', 'json') AS escapedText;  
+
+--* escapedText
+--* \\\t\/\n\\\\\t\"\t
+
+SELECT FORMATMESSAGE('{ "id": %d,"name": "%s", "surname": "%s" }',17, STRING_ESCAPE('John','json'), STRING_ESCAPE('
+Wick','json') ) as msg; 
+
+--* {
+--*     "id": 17,
+--*     "name": "John",
+--*     "surname": "\nWick"
+--* }

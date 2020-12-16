@@ -30,15 +30,15 @@ SELECT database_id,
        CASE WHEN is_read_committed_snapshot_on = 0 THEN 'OFF' ELSE 'ON' END is_read_committed_snapshot_on,
        [compatibility_level],
        CASE [compatibility_level]  
-           WHEN 70 THEN 'SQL Server 7.0 through SQL Server 2008'
-           WHEN 80 THEN 'SQL Server 2000 (8.x) through SQL Server 2008 R2'
-           WHEN 90 THEN 'SQL Server 2008 through SQL Server 2012 (11.x)'
-           WHEN 100 THEN 'SQL Server 2008'
-           WHEN 110 THEN 'SQL Server 2012 (11.x)'
-           WHEN 120 THEN 'SQL Server 2014 (12.x)'
-           WHEN 130 THEN 'SQL Server 2016 (13.x)'
-           WHEN 140 THEN 'SQL Server 2017 (14.x)'
-           WHEN 150 THEN 'SQL Server 2019 (15.x)' END as compatibility_level_desc,
+           WHEN 70 THEN '7.0 through 2008'
+           WHEN 80 THEN '2000 (8.x) through 2008 R2'
+           WHEN 90 THEN '2008 through 2012 (11.x)'
+           WHEN 100 THEN '2008'
+           WHEN 110 THEN '2012 (11.x)'
+           WHEN 120 THEN '2014 (12.x)'
+           WHEN 130 THEN '2016 (13.x)'
+           WHEN 140 THEN '2017 (14.x)'
+           WHEN 150 THEN '2019 (15.x)' END as compatibility_level_desc,
        collation_name
 FROM sys.databases;
 

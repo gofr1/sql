@@ -49,8 +49,7 @@ WHERE SomeText LIKE 'Random Text 1%'
 --* SQL Server Execution Times:
 --* CPU time = 31 ms, elapsed time = 31 ms. 
  
-
-
+SET STATISTICS IO, TIME, PROFILE OFF;
 
 
 --Bad: Select ... WHERE SUBSTRING(DealerName,4) = 'Ford'
@@ -59,3 +58,21 @@ WHERE SomeText LIKE 'Random Text 1%'
 --Bad: Select ... WHERE DateDiff(mm,OrderDate,GetDate()) >= 30
 --Fixed: Select ... WHERE OrderDate < DateAdd(mm,-30,GetDate()) 
 
+USE AdventureWorks2017;
+
+SET STATISTICS PROFILE, XML, IO, TIME ON;
+
+--! This queries are not sargable – sql server couldn’t leverage the indexes to do an index seek.
+
+SELECT *
+FROM Production.Product
+WHERE [Name] like '%thin%';
+--*   |--Clustered Index Scan(OBJECT:([AdventureWorks2017].[Production].[Product].[PK_Product_ProductID]), WHERE:([AdventureWorks2017].[Production].[Product].[Name] like N'%thin%'))
+
+SELECT *
+FROM Production.Product
+WHERE [Name] like '%nut%';
+--*   |--Clustered Index Scan(OBJECT:([AdventureWorks2017].[Production].[Product].[PK_Product_ProductID]), WHERE:([AdventureWorks2017].[Production].[Product].[Name] like N'%nut%'))
+
+
+SET STATISTICS PROFILE, XML, IO, TIME OFF;

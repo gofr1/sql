@@ -31,8 +31,13 @@ CREATE TABLE dbo.Test (
 ) WITH (MEMORY_OPTIMIZED=ON) -- DURABILTY = SCHEMA_AND_DATA (is default)
 GO
 
---You can rebuild/reorginize index online w/o interupting users
+--? Memory-optimized indexes are rebuilt when the database is brought back online.
+
+--? Without using an ALTER TABLE statement, the statements CREATE INDEX, DROP INDEX, ALTER INDEX, 
+--? and PAD_INDEX are not supported for indexes on memory-optimized tables.
+-- This won't work
 ALTER INDEX IX_CS_Test ON dbo.Test REBUILD WITH (ONLINE = ON)
+--!The operation 'ALTER INDEX' is not supported with memory optimized tables.
 GO
 
 --Get a list of all tables and check if there are mem-opt tables

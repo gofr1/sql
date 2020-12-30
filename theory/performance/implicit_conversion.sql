@@ -121,3 +121,15 @@ FROM (
 WHERE [XMLData].value('(/event/action[@name=''database_name'']/value)[1]','varchar(max)') = N'WideWorldImporters'
 ORDER BY [Timestamp];
 GO
+
+-- Also you can use some DMVs
+SELECT DB_NAME(sql_text.[dbid]) AS DBName,
+       sql_text.text AS [QueryText],
+       query_stats.execution_count AS [ExecutionCount], 
+       execution_plan.query_plan AS [QueryPlan]
+FROM sys.dm_exec_query_stats AS query_stats WITH (NOLOCK)
+CROSS APPLY sys.dm_exec_sql_text (plan_handle) AS sql_text 
+CROSS APPLY sys.dm_exec_query_plan (plan_handle) AS execution_plan
+WHERE CAST(query_plan AS VARCHAR(MAX)) LIKE ('%CONVERT_IMPLICIT%') 
+  AND DB_NAME(sql_text.[dbid]) = N'WideWorldImporters';
+GO

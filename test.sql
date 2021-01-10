@@ -77,3 +77,14 @@ SELECT db.name,
 FROM sys.databases db
 LEFT JOIN sys.dm_database_encryption_keys dm
     ON db.database_id = dm.database_id;
+
+-- Check if connections to SQL Server are encrypted
+SELECT session_id, 
+       connect_time,
+       net_transport,
+       encrypt_option,
+       auth_scheme,
+       client_net_address
+FROM sys.dm_exec_connections 
+WHERE session_id = @@SPID
+OR encrypt_option = 'TRUE';

@@ -4,7 +4,7 @@
 
 Use fully qualified domain name (FQDN) or machine name (hostname). In `chown` use group and user that runs SQL Server. In this example self-signed certificate is used.
 
-    openssl req -x509 -nodes -newkey rsa:2048 -subj '/CN=hostname' -keyout mssql.key -out mssql.pem -days 365
+    openssl req -x509 -nodes -newkey rsa:2048 -subj '/CN=hostname' -keyout hostname.key -out hostname.pem -days 365
     sudo chown mssql:mssql hostname.pem hostname.key
     sudo chmod 600 hostname.pem hostname.key
     sudo mv hostname.pem /etc/ssl/certs/

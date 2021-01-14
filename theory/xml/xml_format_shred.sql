@@ -20,13 +20,13 @@ FOR XML PATH('Person');
 
 --! Include existing XML column
 SELECT BusinessEntityID AS '@ID', 
-   PersonType, 
-   Title, 
-   FirstName, 
-   MiddleName, 
-   LastName, 
-   Suffix,
-   Demographics -- xml type
+       PersonType, 
+       Title, 
+       FirstName, 
+       MiddleName, 
+       LastName, 
+       Suffix,
+       Demographics -- xml type
 FROM Person.Person
 WHERE BusinessEntityID = 10001
 FOR XML PATH('Person')
@@ -78,12 +78,12 @@ WHERE BusinessEntityID = 15687;
 -- Declare Namespace once:
 WITH XMLNAMESPACES ('http://schemas.microsoft.com/sqlserver/2004/07/adventure-works/IndividualSurvey' AS ns)
 SELECT FirstName, 
-   MiddleName,
-   LastName,
-   Demographics.value('(/ns:IndividualSurvey/ns:Occupation)[1]','varchar(50)') AS Occupation,
-   Demographics.value('(/ns:IndividualSurvey/ns:Education)[1]','varchar(50)') AS Education,
-   Demographics.value('(/ns:IndividualSurvey/ns:HomeOwnerFlag)[1]','bit') AS HomeOwnerFlag,
-   Demographics.value('(/ns:IndividualSurvey/ns:NumberCarsOwned)[1]','int') AS NumberCarsOwned
+       MiddleName,
+       LastName,
+       Demographics.value('(/ns:IndividualSurvey/ns:Occupation)[1]','varchar(50)') AS Occupation,
+       Demographics.value('(/ns:IndividualSurvey/ns:Education)[1]','varchar(50)') AS Education,
+       Demographics.value('(/ns:IndividualSurvey/ns:HomeOwnerFlag)[1]','bit') AS HomeOwnerFlag,
+       Demographics.value('(/ns:IndividualSurvey/ns:NumberCarsOwned)[1]','int') AS NumberCarsOwned
 FROM Person.Person
 WHERE BusinessEntityID = 15687;
 

@@ -8,6 +8,13 @@
 --? When a trigger is executing the inserted/deleted virtual tables are stored in tempdb.
 --? Any DB that uses RCSI will have their row versioning information stored in tempdb.
 
+
+--? cannot be restored. 
+--? is in SIMPLE recovery and this cannot be changed.
+--? cannot be backed up.
+--? everyone has access and the same access to the tempdb.
+
+
 -- tempdb is regenerated/recreated upon every start of the SQL Server instance. 
 -- Any objects that have been created in tempdb during a previous session will not persist upon a service restart. 
 -- tempdb gets its initial object list from the model database which is generally going to be empty or nearly empty.
@@ -52,4 +59,3 @@ ALTER DATABASE [tempdb] MODIFY FILE ( NAME = N'templog', FILENAME = N'/var/opt/m
 
 --! Run an integrity check is below.
 DBCC CHECKDB ('tempdb'); 
-

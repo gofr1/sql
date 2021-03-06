@@ -39,3 +39,22 @@ FROM dbo.Products  WITH (READPAST);
 --* 5   Wireless Router
 
 --! You can only specify the READPAST lock in the READ COMMITTED or REPEATABLE READ isolation levels. 
+
+-- READPAST with update
+-- Exexute tran.sql and try query below:
+
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+UPDATE p
+SET ProductName = '???' 
+FROM dbo.Products p (READPAST)
+--* (3 rows affected)
+
+SELECT *
+FROM dbo.Products
+--* Id  ProductName
+--* 1   Laptop
+--* 2   Mouse
+--* 3   ???
+--* 4   ???
+--* 5   ???

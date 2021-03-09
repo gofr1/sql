@@ -65,7 +65,7 @@ FROM dbo.TestQueryStore
 
 SELECT DISTINCT OrderId 
 FROM dbo.TestQueryStore
-WHERE OrderDate > '1992-10-01' AND OrderDate < '1993-10-01'
+WHERE OrderDate > '1992-10-01' AND OrderDate < '1992-11-01'
 
 ---------------------------------------------------------------------
 -- Check
@@ -73,13 +73,32 @@ SELECT *
 FROM sys.query_store_plan p
 INNER JOIN sys.query_store_query q 
     ON p.query_id = q.query_id
+INNER JOIN sys.query_store_query_text qt 
+    ON q.query_text_id = qt.query_text_id
+WHERE qt.query_sql_text  LIKE 'SELECT *%FROM dbo.TestQueryStore'
 
+-- Get plan handle for a particular query
+SELECT cp.plan_handle, 
+       cp.objtype, 
+       cp.usecounts, 
+       DB_NAME(st.dbid) AS [database_name], 
+       st.text
+FROM sys.dm_exec_cached_plans AS cp
+  CROSS APPLY sys.dm_exec_sql_text(plan_handle) AS st
+WHERE st.text  LIKE 'SELECT *%FROM dbo.TestQueryStore'
+
+-- Remove a particular query plan hash
+DBCC FREEPROCCACHE (0x060013005A369912505824BB1500000001000000000000000000000000000000000000000000000000000000);
+
+-- Plan statistics
+SELECT *
+FROM sys.query_store_wait_stats 
 
 USE [master];
 -- Clean up Query Store data by using the following statement:
 ALTER DATABASE [QueryStoreDB] SET QUERY_STORE CLEAR;
 
-USE [QueryStoreDB]
+USE [QueryStoreDB];
 -- Check the status of forced plans 
 SELECT p.plan_id, 
        p.query_id, 
@@ -90,4 +109,3 @@ FROM sys.query_store_plan p
 INNER JOIN sys.query_store_query q 
     ON p.query_id = q.query_id
 WHERE is_forced_plan = 1;
-

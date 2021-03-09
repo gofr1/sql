@@ -39,7 +39,8 @@ SELECT database_id,
            WHEN 130 THEN '2016 (13.x)'
            WHEN 140 THEN '2017 (14.x)'
            WHEN 150 THEN '2019 (15.x)' END as compatibility_level_desc,
-       collation_name
+       collation_name,
+       CASE WHEN is_query_store_on = 0 THEN 'OFF' ELSE 'ON' END is_query_store_on
 FROM sys.databases;
 
 -- Check if Full-Text Search is installed

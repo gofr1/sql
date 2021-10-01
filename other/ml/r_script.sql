@@ -2,6 +2,10 @@ USE DEMO;
 
 SELECT @@VERSION;
 
+SELECT *
+FROM sys.configurations c 
+WHERE c.[name] = 'external scripts enabled';
+
 EXEC sp_execute_external_script   
 @language =N'R', 
 @script=N' 

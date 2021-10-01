@@ -10,6 +10,10 @@ SELECT @@VERSION;
 --? sudo apt-get install mssql-mlservices-packages-py
 --? sudo apt-get install mssql-mlservices-packages-r
 
+SELECT *
+FROM sys.configurations c 
+WHERE c.[name] = 'external scripts enabled';
+
 --! Turn 'External Scripts Enabled' server configuration option ON:
 EXEC sp_configure 'external scripts enabled', 1;
 RECONFIGURE WITH OVERRIDE; 
